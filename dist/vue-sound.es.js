@@ -156,6 +156,11 @@ const _sfc_main = {
       type: Boolean,
       default: false
     },
+    preload: {
+      type: String,
+      default: "auto",
+      validator: (value) => ["auto", "metadata", "none"].includes(value)
+    },
     details: {
       type: String,
       default: null
@@ -199,13 +204,16 @@ const _sfc_main = {
     titleLink: {
       type: String,
       default: null
+    },
+    durationSeconds: {
+      type: Number,
+      default: 0
     }
   },
   data() {
     return {
       audio: void 0,
       currentSeconds: 0,
-      durationSeconds: 0,
       buffered: 0,
       innerLoop: false,
       loaded: false,
@@ -332,7 +340,14 @@ const _sfc_main = {
       this.audio.currentTime = 0;
     },
     togglePlay() {
-      this.playing = !this.playing;
+      if (!this.loaded) {
+        this.audio.load();
+        this.audio.addEventListener("canplay", () => {
+          this.playing = true;
+        }, { once: true });
+      } else {
+        this.playing = !this.playing;
+      }
     },
     update() {
       this.currentSeconds = this.audio.currentTime;
@@ -368,7 +383,7 @@ const _hoisted_18 = /* @__PURE__ */ createElementVNode("label", {
   class: "hide-ally-element"
 }, " volume slider ", -1);
 const _hoisted_19 = ["aria-label"];
-const _hoisted_20 = ["loop", "src"];
+const _hoisted_20 = ["loop", "src", "preload"];
 function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_back15_icon = resolveComponent("back15-icon");
   const _component_play_icon = resolveComponent("play-icon");
@@ -443,7 +458,7 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
             createElementVNode("div", _hoisted_14, [
               createElementVNode("span", _hoisted_15, toDisplayString($options.convertTimeHHMMSS($data.currentSeconds)), 1),
               _hoisted_16,
-              createElementVNode("span", _hoisted_17, toDisplayString($options.convertTimeHHMMSS($data.durationSeconds)), 1)
+              createElementVNode("span", _hoisted_17, toDisplayString($options.convertTimeHHMMSS($props.durationSeconds)), 1)
             ])
           ], 64)) : createCommentVNode("", true)
         ]),
@@ -494,7 +509,7 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
         ref: "audioFile",
         loop: $data.innerLoop,
         src: $props.file,
-        preload: "none",
+        preload: $props.preload,
         style: { "display": "none" }
       }, null, 8, _hoisted_20)
     ])

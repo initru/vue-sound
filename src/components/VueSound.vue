@@ -120,7 +120,7 @@
         ref="audioFile"
         :loop="innerLoop"
         :src="file"
-        preload="none"
+        :preload="preload"
         style="display: none"
       />
     </div>
@@ -151,6 +151,11 @@ export default {
     autoPlay: {
       type: Boolean,
       default: false
+    },
+    preload: {
+      type: String,
+      default: 'auto', // Default to 'auto'
+      validator: (value) => ['auto', 'metadata', 'none'].includes(value)
     },
     details: {
       type: String,
@@ -195,13 +200,16 @@ export default {
     titleLink: {
       type: String,
       default: null
+    },
+    durationSeconds: {
+      type: Number,
+      default: 0 // Default value if no duration is provided
     }
   },
   data () {
     return {
       audio: undefined,
       currentSeconds: 0,
-      durationSeconds: 0,
       buffered: 0,
       innerLoop: false,
       loaded: false,
@@ -228,10 +236,10 @@ export default {
       return this.volume / 100 === 0
     },
     percentBuffered () {
-      return ( this.buffered / this.durationSeconds ) * 100
+      return (this.buffered / this.durationSeconds) * 100;
     },
     percentComplete () {
-      return ( this.currentSeconds / this.durationSeconds ) * 100
+      return (this.currentSeconds / this.durationSeconds) * 100;
     }
   },
   watch: {
@@ -326,7 +334,15 @@ export default {
       this.audio.currentTime = 0
     },
     togglePlay () {
-      this.playing = !this.playing
+      if (!this.loaded) {
+        // Explicitly load the audio resource
+        this.audio.load();
+        this.audio.addEventListener('canplay', () => {
+          this.playing = true; // Start playback after it's ready
+        }, { once: true });
+      } else {
+        this.playing = !this.playing;
+      }
     },
     update () {
       this.currentSeconds = this.audio.currentTime
