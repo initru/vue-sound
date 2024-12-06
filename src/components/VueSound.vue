@@ -120,7 +120,7 @@
         ref="audioFile"
         :loop="innerLoop"
         :src="file"
-        preload="auto"
+        preload="none"
         style="display: none"
       />
     </div>

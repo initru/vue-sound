@@ -494,7 +494,7 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
         ref: "audioFile",
         loop: $data.innerLoop,
         src: $props.file,
-        preload: "auto",
+        preload: "none",
         style: { "display": "none" }
       }, null, 8, _hoisted_20)
     ])
